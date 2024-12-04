@@ -1,0 +1,5 @@
+1. Create a database in MySQL with the following:
+
+
+2. Create tables for the database with the following:
+
