@@ -1,5 +1,6 @@
 1. Create a database in MySQL with the following:
 
+create database SoccerDB;
 
 2. Create tables for the database with the following:
 
@@ -50,7 +51,7 @@ create table PlayedFor (
     Primary Key (PlayerID, TeamID)
 );
 
-create table Matches (
+create table Match (
 	MatchID int,
     HomeGoals int,
     AwayGoals int,
