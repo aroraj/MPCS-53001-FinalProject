@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Results for a Specific Team</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .query-form {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .results-table th, .results-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .results-table th {
+            background-color: #f2f2f2;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: #333;
+        }
+        /* i need to modulize this to use in other query pages*/
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Menu</a>
+        <h1>Match Results for a Specific Team</h1>
+        
+        <div class="query-form">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="team">Select Team:</label>
+                    <select name="team" id="team" required>
+                        <!-- TODO: Add teams -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="season">Season:</label>
+                    <select name="season" id="season" required>
+                        <option value="">Select season...</option>
+                        <!-- TODO: Add seasons -->
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">Search Matches</button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <h2>Results</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Home Team</th>
+                        <th>Score</th>
+                        <th>Away Team</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results would be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 

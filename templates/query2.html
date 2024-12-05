@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Scoring Teams in a Season</title>
+    <style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Menu</a>
+        <h1>Top Scoring Teams in a Season</h1>
+        
+        <div class="query-form">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="season">Select Season:</label>
+                    <select name="season" id="season" required>
+                        <option value="">Select season...</option>
+                        <option value="2023">2023/24</option>
+                        <option value="2022">2022/23</option>
+                        <option value="2021">2021/22</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="limit">Number of Teams to Show:</label>
+                    <select name="limit" id="limit">
+                        <option value="5">Top 5</option>
+                        <option value="10">Top 10</option>
+                        <option value="20">Top 20</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">Show Results</button>
+            </form>
+        </div>
+
+        <div class="results-section">
+            <h2>Results</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Total Goals</th>
+                        <th>Matches Played</th>
+                        <th>Goals per Match</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results would be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 

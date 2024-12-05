@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Performance by Season</title>
+    <style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Menu</a>
+        <h1>Team Performance by Season</h1>
+        
+        <div class="query-form">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="team">Select Team:</label>
+                    <select name="team" id="team" required>
+                        <option value="">Select a team...</option>
+                        <!-- Teams would be populated from database -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="from_season">From Season:</label>
+                    <select name="from_season" id="from_season" required>
+                        <option value="2020">2020/21</option>
+                        <option value="2021">2021/22</option>
+                        <option value="2022">2022/23</option>
+                        <option value="2023">2023/24</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="to_season">To Season:</label>
+                    <select name="to_season" id="to_season" required>
+                        <option value="2020">2020/21</option>
+                        <option value="2021">2021/22</option>
+                        <option value="2022">2022/23</option>
+                        <option value="2023">2023/24</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">Show Performance</button>
+            </form>
+        </div>
+
+        <div class="results-section">
+            <h2>Season Performance</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Season</th>
+                        <th>Matches</th>
+                        <th>Wins</th>
+                        <th>Draws</th>
+                        <th>Losses</th>
+                        <th>Goals For</th>
+                        <th>Goals Against</th>
+                        <th>Win Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results would be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 

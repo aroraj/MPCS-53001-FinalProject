@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players with Same Birthday</title>
+    <style>
+        /* Same CSS as query1.html */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Menu</a>
+        <h1>Players with Same Birthday</h1>
+        
+        <div class="query-form">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="month">Month (Optional):</label>
+                    <select name="month" id="month">
+                        <option value="">All Months</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <!-- ... other months ... -->
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="min_players">Minimum Players in Group:</label>
+                    <input type="number" name="min_players" id="min_players" value="2" min="2">
+                </div>
+
+                <button type="submit" class="submit-btn">Find Players</button>
+            </form>
+        </div>
+
+        <div class="results-section">
+            <h2>Results</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Birth Date</th>
+                        <th>Number of Players</th>
+                        <th>Players</th>
+                        <th>Teams</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results would be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 
