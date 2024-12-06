@@ -13,7 +13,7 @@ create table Country (
 
 create table League (
 	LeagueID int,
-    LeagueName varchar(20),
+    LeagueName varchar(40),
     CountryID int,
     
     Foreign Key (CountryID) references Country(CountryID),
@@ -22,7 +22,7 @@ create table League (
 
 create table Team (
 	TeamID int,
-    FullName varchar(20),
+    FullName varchar(40),
     ShortName varchar(10),
     LeagueID int,
     
@@ -32,7 +32,8 @@ create table Team (
 
 create table Player (
 	PlayerID int,
-    Height decimal(3, 2),
+    PlayerName varchar(40),
+    Height decimal(5, 2),
 	Birthday date,
     BornIn int,
     
@@ -51,7 +52,7 @@ create table PlayedFor (
     Primary Key (PlayerID, TeamID)
 );
 
-create table Match (
+create table Matches (
 	MatchID int,
     HomeGoals int,
     AwayGoals int,
