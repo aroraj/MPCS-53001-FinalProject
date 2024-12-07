@@ -64,3 +64,9 @@ create table Matches (
     Foreign Key (AwayTeamID) references Team(TeamID),
     Primary Key (MatchID)
 );
+
+3. Insert Data into the tables with the following commands in the terminal:
+python3 -m pip install mysql-connector-python 
+python3 insertData.py
+
+4. 

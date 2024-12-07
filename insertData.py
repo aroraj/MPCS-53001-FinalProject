@@ -20,7 +20,7 @@ myCursor = myConnection.cursor()
 # Insert data into Country table
 countryIDs = []
 countryValues = []
-with open('data/Country_data.csv') as csvfile:
+with open('data/Country.csv') as csvfile:
     countryReader = csv.reader(csvfile, delimiter = ',' )
     next(countryReader)
     for row in countryReader:
@@ -36,7 +36,7 @@ myConnection.commit()
 # Insert data into League table
 leagueValues = []
 leagueIDs = []
-with open('data/League_data.csv') as csvfile:
+with open('data/League.csv') as csvfile:
     leagueReader = csv.reader(csvfile, delimiter = ',' )
     next(leagueReader)
     for row in leagueReader:
@@ -53,13 +53,13 @@ myConnection.commit()
 # Insert data into Team table
 teamValues = []
 teamIDs = []
-with open('data/Team_data.csv') as csvfile:
+with open('data/Team.csv') as csvfile:
     teamReader = csv.reader(csvfile, delimiter = ',' )
     next(teamReader)
     for row in teamReader:
         teamID = row[1]
-        teamLongName = row[3]
-        teamShortName = row[4]
+        teamLongName = row[2]
+        teamShortName = row[3]
         leagueID = leagueIDs[random.randint(0, len(leagueIDs)-1)]
 
         teamValues.append((teamID, teamLongName, teamShortName, leagueID))
@@ -72,14 +72,14 @@ myConnection.commit()
 
 playerValues = []
 playerIDs = []
-with open('data/Player_data.csv') as csvfile:
+with open('data/Player.csv') as csvfile:
     playerReader = csv.reader(csvfile, delimiter = ',' )
     next(playerReader)
     for row in playerReader:
         playerID = row[0]
         playerName = row[2]
-        playerHeight = row[5]
-        playerBDay = row[4].split(' ')[0]
+        playerHeight = row[4]
+        playerBDay = row[3].split(' ')[0]
         playerBornIn = countryIDs[random.randint(0, len(countryIDs)-1)]
 
         playerValues.append((playerID, playerName, playerHeight, playerBDay, playerBornIn))
@@ -104,8 +104,11 @@ for playerID in playerIDs:
         teamIDidx = random.randint(0, len(teamIDs)-1)
         teamID = teamIDs[teamIDidx]
         if playedForValues and teamID == playedForValues[-1][1]:
-            teamID = teamIDs[teamIDidx + 1]
-        # Generate start and end dates
+            if teamIDidx == len(teamIDs) - 1:
+                teamID = teamIDs[0]
+            else:
+              teamID = teamIDs[teamIDidx + 1]
+        # Generate start and end dates  
         startDate = generate_date("2008-1-1", "2016-12-31", ran_nums[2*i])
         endDate = generate_date("2008-1-1", "2016-12-31", ran_nums[2*i + 1])
         playedForValues.append((playerID, teamID, startDate, endDate))
@@ -117,17 +120,17 @@ myConnection.commit()
 # Insert data into Match table
 
 matchValues = []
-with open('data/Match_data.csv') as csvfile:
+with open('data/Match.csv') as csvfile:
     matchReader = csv.reader(csvfile, delimiter = ',' )
     next(matchReader)
     for row in matchReader:
         matchID = row[0]
-        homeGoals = row[9]
-        awayGoals = row[10]
+        homeGoals = row[6]
+        awayGoals = row[7]
         # Only want starting year of season, so take first 4 characters
-        season = row[5][:4]
-        homeTeamID = row[7]
-        awayTeamID = row[8]
+        season = row[2][:4]
+        homeTeamID = row[4]
+        awayTeamID = row[5]
 
         matchValues.append((matchID, homeGoals, awayGoals, season, homeTeamID, awayTeamID))
     
