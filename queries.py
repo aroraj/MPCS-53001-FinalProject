@@ -121,16 +121,18 @@ def query5(league, season):
   myCursor.execute(query)
   return myCursor.fetchall()
 
-# Query 6: Overall Wins, Losses, Draws for a Specific Team
+# Query 6: Wins, Losses, Draws for a Specific Team Over The Years
 def query6(teamName):
-  query = "SELECT" \
+  query = "SELECT m.Season," \
   " SUM(CASE WHEN (m.HomeTeamID = t.TeamID AND m.HomeGoals > m.AwayGoals) OR (m.AwayTeamID = t.TeamID AND m.AwayGoals > m.HomeGoals) " \
   " THEN 1 ELSE 0 END) AS Wins, " \
   " SUM(CASE WHEN (m.HomeTeamID = t.TeamID AND m.HomeGoals < m.AwayGoals) OR (m.AwayTeamID = t.TeamID AND m.AwayGoals < m.HomeGoals) THEN 1 ELSE 0 END) AS Losses, " \
   " SUM(CASE WHEN m.HomeGoals = m.AwayGoals THEN 1 ELSE 0 END) AS Draws " \
   " FROM Matches m " \
   " JOIN Team t ON t.TeamID = (SELECT TeamID FROM Team WHERE FullName = '%s' LIMIT 1) " \
-  " WHERE m.HomeTeamID = t.TeamID OR m.AwayTeamID = t.TeamID;", teamName
+  " WHERE (m.HomeTeamID = t.TeamID OR m.AwayTeamID = t.TeamID)" \
+  " GROUP BY m.Season" \
+  " ORDER BY m.Season;", teamName
 
   conn = get_db_connection()
   cursor = conn.cursor()
