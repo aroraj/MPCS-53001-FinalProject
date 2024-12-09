@@ -53,7 +53,7 @@ myConnection.commit()
 # Insert data into Team table
 teamValues = []
 teamIDs = []
-with open('data/TeamNew.csv', encoding='utf-8') as csvfile:
+with open('data/Team.csv', encoding='utf-8') as csvfile:
     teamReader = csv.reader(csvfile, delimiter = ',' )
     next(teamReader)
     for row in teamReader:
@@ -72,7 +72,7 @@ myConnection.commit()
 
 playerValues = []
 playerIDs = []
-with open('data/PlayerNew.csv') as csvfile:
+with open('data/Player.csv') as csvfile:
     playerReader = csv.reader(csvfile, delimiter = ',' )
     next(playerReader)
     for row in playerReader:
@@ -120,7 +120,7 @@ myConnection.commit()
 # Insert data into Match table
 
 matchValues = []
-with open('data/MatchNew.csv') as csvfile:
+with open('data/Match.csv') as csvfile:
     matchReader = csv.reader(csvfile, delimiter = ',' )
     next(matchReader)
     for row in matchReader:

@@ -76,13 +76,20 @@ Created by: Jayti Arora, Kevin Lim, Darshana Venkatadasan, Yuehan Wang
 
     `python3 -m pip install flask`
 
-4. Insert Data into the tables with the following command in the terminal:
+4. Create a file titled `config.py` with your MySQL username and password:
+    
+    ```
+    user = 'yourUserName'
+    password = 'yourPassword'
+    ```
+
+5. Insert Data into the tables with the following command in the terminal:
 
     *Make sure to update the SQL password in insertData.py and queries.py*
 
     `python3 insertData.py`
 
-5. Run the GUI:
+6. Run the GUI:
 
     `python3 app.py`
 
