@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>League Standings</title>
-    <style>
-    </style>
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
     <div class="container">
@@ -18,18 +17,19 @@
                     <label for="league">Select League:</label>
                     <select name="league" id="league" required>
                         <option value="">Select a league...</option>
-                        <option value="EPL">English Premier League</option>
-                        <option value="LaLiga">La Liga</option>
-                        <option value="BUN">Bundesliga</option>
+                        {% for league in leagues %}
+                            <option value="{{ league[0] }}" {% if selected_league and league[0] == selected_league %}selected{% endif %}>{{ league[0] }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label for="season">Season:</label>
                     <select name="season" id="season" required>
-                        <option value="2023">2023/24</option>
-                        <option value="2022">2022/23</option>
-                        <option value="2021">2021/22</option>
+                        <option value="">Select season...</option>
+                        {% for season in seasons %}
+                            <option value="{{ season[0] }}" {% if selected_season and season[0] == selected_season %}selected{% endif %}>{{ season[0] }}/{{ season[0]|int + 1 }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -37,28 +37,37 @@
             </form>
         </div>
 
-        <div class="results-section">
-            <h2>League Table</h2>
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Position</th>
-                        <th>Team</th>
-                        <th>Played</th>
-                        <th>Won</th>
-                        <th>Drawn</th>
-                        <th>Lost</th>
-                        <th>GF</th>
-                        <th>GA</th>
-                        <th>GD</th>
-                        <th>Points</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Results would be populated here -->
-                </tbody>
-            </table>
-        </div>
+        {% if results %}
+            <div class="results-section">
+                <h2>League Standings for {{ selected_league }} - Season {{ selected_season }}/{{ selected_season|int + 1 }}</h2>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Team</th>
+                            <th>Wins</th>
+                            <th>Draws</th>
+                            <th>Losses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in results %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ team[0] }}</td>
+                                <td>{{ team[1] }}</td>
+                                <td>{{ team[2] }}</td>
+                                <td>{{ team[3] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif results is not none %}
+            <div class="results-section">
+                <h2>No standings found for the selected criteria.</h2>
+            </div>
+        {% endif %}
     </div>
 </body>
-</html> 
+</html>

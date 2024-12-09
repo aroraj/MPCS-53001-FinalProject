@@ -55,9 +55,23 @@ def query3():
 def query4():
     return render_template('query4.html')
 
-@app.route('/query5')
-def query5():
-    return render_template('query5.html')
+@app.route('/query5', methods=['GET', 'POST'])
+def query5_route():
+    try:
+        leagues = get_leagues()
+        seasons = get_seasons()
+        
+        if request.method == 'POST':
+            league = request.form.get('league')
+            season = request.form.get('season')
+            if league and season:
+                results = query5(league, season)
+                return render_template('query5.html', leagues=leagues, seasons=seasons, results=results, selected_league=league, selected_season=season)
+        
+        return render_template('query5.html', leagues=leagues, seasons=seasons)
+    except Exception as e:
+        print(f"Error in query5: {e}")
+        return f"Error: {e}", 500
 
 @app.route('/query6', methods=['GET', 'POST'])
 def query6_route():
