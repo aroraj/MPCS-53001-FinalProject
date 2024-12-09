@@ -208,7 +208,7 @@ def query9(teamName, season):
     cursor.close()
     conn.close()
 
-# Query 10: Top 5 teams with most wins for a country
+# Query 10: Most to least wins for a country
 def query10(country):
   conn = get_db_connection()
   cursor = conn.cursor()
@@ -225,8 +225,7 @@ def query10(country):
         (m.AwayGoals > m.HomeGoals AND m.AwayTeamID = t.TeamID)
     )
     GROUP BY t.TeamID
-    ORDER BY Wins DESC
-    LIMIT 5;"""
+    ORDER BY Wins DESC;"""
 
     cursor.execute(query, (country,))
     return cursor.fetchall()
