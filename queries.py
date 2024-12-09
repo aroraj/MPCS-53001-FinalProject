@@ -221,22 +221,19 @@ def query9(league_name, season):
 
 # Get all countries
 def get_countries():
-    query = """
-    SELECT DISTINCT c.CountryName, c.CountryID
-    FROM Country c
-    JOIN League l ON c.CountryID = l.CountryID
-    JOIN Team t ON l.LeagueID = t.LeagueID
-    ORDER BY c.CountryName;
-    """
     conn = get_db_connection()
-    cursor = conn.cursor()
-    
     try:
-        cursor.execute(query)
-        return cursor.fetchall()
-    finally:
-        cursor.close()
+        cur = conn.cursor()
+        cur.execute('SELECT CountryName FROM Country ORDER BY CountryName')
+        countries = cur.fetchall()
+        cur.close()
         conn.close()
+        return countries
+    except Exception as e:
+        print("Error in get_countries:", str(e))
+        if conn:
+            conn.close()
+        raise e
 
 def query10(countries, season=None):
     conn = get_db_connection()
