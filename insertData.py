@@ -8,12 +8,11 @@ random.seed(0)
 
 # Connect to the database
 myConnection = mysql.connector.connect(
-  user='root',
-  password='...', # Enter your password here
-  host='localhost',
-  database='SoccerDB'
+    user='root',
+    password='Wyh20171045!',
+    host='localhost',
+    database='soccerdb'
 )
-
 # Create a cursor
 myCursor = myConnection.cursor()
 

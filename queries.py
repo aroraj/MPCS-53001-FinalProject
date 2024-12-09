@@ -3,10 +3,10 @@ import mysql.connector
 
 # Connect to the database
 myConnection = mysql.connector.connect(
-  user='root',
-  password='....', # Enter your password here
-  host='localhost',
-  database='SoccerDB'
+    user='root',
+    password='Wyh20171045!',
+    host='localhost',
+    database='soccerdb'
 )
 
 # Create a cursor
@@ -33,8 +33,8 @@ def query6(teamName):
   " JOIN Team t ON t.TeamID = (SELECT TeamID FROM Team WHERE FullName = '%s' LIMIT 1) " \
   " WHERE m.HomeTeamID = t.TeamID OR m.AwayTeamID = t.TeamID;", teamName
 
-  cursorObject.execute(query)
-  return cursorObject.fetchall()
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
 # Query 7: Players with the Same Birthday
 def query7():
@@ -47,8 +47,8 @@ def query7():
   " ON MONTH(p1.Birthday) = p2.Month AND DAY(p1.Birthday) = p2.Day " \
   " ORDER BY MONTH(p1.Birthday), DAY(p1.Birthday);"
   
-  cursorObject.execute(query)
-  return cursorObject.fetchall()
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
 # Query 8: Players Taller or Shorter than a Specific Height
 def query8(height, shorter):
@@ -60,8 +60,8 @@ def query8(height, shorter):
     " WHERE p.Height %s %d " \
     " ORDER BY p.Height;" % symbol, height
   
-  cursorObject.execute(query)
-  return cursorObject.fetchall()
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
 # Query 9: All Matches in a Specific League and Season
 def query9(teamName, season):
@@ -73,8 +73,8 @@ def query9(teamName, season):
   " JOIN League l ON ht.LeagueID = l.LeagueID " \
   " WHERE l.LeagueName = '%s' AND m.Season = %d;" % teamName, season
 
-  cursorObject.execute(query)
-  return cursorObject.fetchall()
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
 # Query 10: Team with most wins for each country
 def query10():
@@ -88,9 +88,23 @@ def query10():
   " GROUP BY c.CountryID, t.TeamID" \
   " ORDER BY c.CountryName, Wins DESC;"
   
-  cursorObject.execute(query)
-  return cursorObject.fetchall()
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
-# Close the database connection
-cursorObject.close()
-myConnection.close()
+# Get all teams
+def get_teams():
+    query = "SELECT TeamID, FullName FROM Team ORDER BY FullName;"
+    myCursor.execute(query)
+    return myCursor.fetchall()
+
+# Get all seasons
+def get_seasons():
+    query = "SELECT DISTINCT Season FROM Matches ORDER BY Season;"
+    myCursor.execute(query)
+    return myCursor.fetchall()
+
+def close_db():
+    if 'myCursor' in globals() and myCursor is not None:
+        myCursor.close()
+    if 'myConnection' in globals() and myConnection is not None:
+        myConnection.close()

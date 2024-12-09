@@ -1,9 +1,13 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from queries import get_teams, get_seasons
 
 app = Flask(__name__)
 
+# load all the csv files into a database
+
 @app.route('/')
 def index():
+
     return render_template('index.html')
 
 @app.route('/query1')
@@ -26,9 +30,17 @@ def query4():
 def query5():
     return render_template('query5.html')
 
-@app.route('/query6')
+@app.route('/query6', methods=['GET', 'POST'])
 def query6():
-    return render_template('query6.html')
+    try:
+        teams = get_teams()
+        print(f"Found {len(teams)} teams")
+        seasons = get_seasons()
+        print(f"Found {len(seasons)} seasons")
+        return render_template('query6.html', teams=teams, seasons=seasons)
+    except Exception as e:
+        print(f"Error in query6: {e}")
+        return f"Error: {e}", 500
 
 @app.route('/query7')
 def query7():
