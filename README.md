@@ -2,16 +2,17 @@
 Created by: Jayti Arora, Kevin Lim, Darshana Venkatadasan, Yuehan Wang
 
 ## ER Diagram
-<img title="ER Diagram of the Soccer DB" alt="ER Diagram of the Soccer DB" src="ER.png">
+<img title="ER Diagram of the Soccer DB" alt="ER Diagram of the Soccer DB" src="diagrams/ER.png">
 
 ## Relational Schema
-<img title="Relational Schema of the Soccer DB" alt="Relational Schema of the Soccer DB" src="RelationalSchema.png">
+<img title="Relational Schema of the Soccer DB" alt="Relational Schema of the Soccer DB" src="diagrams/RelationalSchema.png">
 
 ## How to Run The App
 1. In MySQL create a DB
 
     `create database SoccerDB;`
-2. Create tables for the database with the following:
+
+2. In MySQL create tables the following:
 
     ```
     create table Country (
@@ -70,13 +71,13 @@ Created by: Jayti Arora, Kevin Lim, Darshana Venkatadasan, Yuehan Wang
     );
     ```
 
-3. Install SQL Connector and Flask with the following commans in the terminal:
+3. Install mysql-connector and flask with the following commands in the terminal:
     
     `python3 -m pip install mysql-connector-python`
 
     `python3 -m pip install flask`
 
-4. Create a file titled `config.py` with your MySQL username and password:
+4. Create a file titled `config.py` with and add your MySQL username and password:
     
     ```
     user = 'yourUserName'
@@ -84,8 +85,6 @@ Created by: Jayti Arora, Kevin Lim, Darshana Venkatadasan, Yuehan Wang
     ```
 
 5. Insert Data into the tables with the following command in the terminal:
-
-    *Make sure to update the SQL password in insertData.py and queries.py*
 
     `python3 insertData.py`
 
