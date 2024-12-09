@@ -18,9 +18,9 @@
                     <label for="season">Select Season:</label>
                     <select name="season" id="season" required>
                         <option value="">Select season...</option>
-                        <option value="2023">2023/24</option>
-                        <option value="2022">2022/23</option>
-                        <option value="2021">2021/22</option>
+                        {% for season in seasons %}
+                        <option value="{{ season[0] }}">{{ season[0] }}/{{ season[0]|int + 1 }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 
@@ -38,6 +38,7 @@
         </div>
 
         <div class="results-section">
+            {% if results %}
             <h2>Results</h2>
             <table class="results-table">
                 <thead>
@@ -50,9 +51,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Results would be populated here -->
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ result[0] }}</td>
+                        <td>{{ result[1] }}</td>
+                        <td>{{ result[2] }}</td>
+                        <td>{{ "%.2f"|format(result[1] / result[2]) }}</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
+            {% endif %}
         </div>
     </div>
 </body>

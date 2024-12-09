@@ -28,9 +28,22 @@ def query1_route():
         print(f"Error in query1: {e}")
         return f"Error: {e}", 500
 
-@app.route('/query2')
-def query2():
-    return render_template('query2.html')
+@app.route('/query2', methods=['GET', 'POST'])
+def query2_route():
+    try:
+        seasons = get_seasons()
+        
+        if request.method == 'POST':
+            season = request.form.get('season')
+            limit = request.form.get('limit')
+            if season and limit:
+                results = query2(int(limit), season)
+                return render_template('query2.html', seasons=seasons, results=results)
+        
+        return render_template('query2.html', seasons=seasons)
+    except Exception as e:
+        print(f"Error in query2: {e}")
+        return f"Error: {e}", 500
 
 @app.route('/query3')
 def query3():
@@ -45,7 +58,7 @@ def query5():
     return render_template('query5.html')
 
 @app.route('/query6', methods=['GET', 'POST'])
-def query6():
+def query6_route():
     try:
         teams = get_teams()
         print(f"Found {len(teams)} teams")

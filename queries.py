@@ -53,22 +53,24 @@ def query1(team_name, season):
 
 # Query 2: Top scoring teams in a season
 def query2(limit, season):
-  query = f"""SELECT FullName, COUNT(Goals)
-              FROM (SELECT HomeTeamID AS TeamID, HomeGoals AS Goals
-                  FROM Matches as M
-                  WHERE M.Season = {season}
-                  UNION ALL
-                  SELECT AwayTeamID AS TeamID, AwayGoals AS Goals
-                  FROM Matches AS M
-                  WHERE M.Season = {season}) AS M
-              INNER JOIN Team AS T ON T.TeamID = M.TeamID
-              GROUP BY FullName
-
-              ORDER BY COUNT(Goals) DESC
-              LIMIT {limit};"""
-  
-  myCursor.execute(query)
-  return myCursor.fetchall()
+    query = f"""
+    SELECT 
+        t.FullName,
+        SUM(CASE 
+            WHEN m.HomeTeamID = t.TeamID THEN m.HomeGoals
+            ELSE m.AwayGoals
+        END) as TotalGoals,
+        COUNT(*) as MatchesPlayed
+    FROM Team t
+    JOIN Matches m ON t.TeamID = m.HomeTeamID OR t.TeamID = m.AwayTeamID
+    WHERE m.Season = {season}
+    GROUP BY t.TeamID, t.FullName
+    ORDER BY TotalGoals DESC
+    LIMIT {limit}
+    """
+    
+    myCursor.execute(query)
+    return myCursor.fetchall()
 
 # Query 3: Players born in a given country between given years
 def query3(country, startYear, endYear):
