@@ -70,4 +70,5 @@ python3 -m pip install mysql-connector-python
 python3 insertData.py
 
 4. To see the GUI, run the following command in the terminal:
+python3 -m pip install flask
 python3 app.py
