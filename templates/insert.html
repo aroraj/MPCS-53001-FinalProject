@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Data</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Menu</a>
+        <h1>Insert Data into Database</h1>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('country')">Country</div>
+            <div class="tab" onclick="showTab('league')">League</div>
+            <div class="tab" onclick="showTab('team')">Team</div>
+            <div class="tab" onclick="showTab('player')">Player</div>
+            <div class="tab" onclick="showTab('match')">Match</div>
+            <div class="tab" onclick="showTab('played-for')">Played For</div>
+        </div>
+
+        <div id="country" class="tab-content section active">
+            <h2>Add New Country</h2>
+            <form method="POST" action="{{ url_for('insert_country_route') }}">
+                <div class="form-group">
+                    <label for="country_name">Country Name:</label>
+                    <input type="text" id="country_name" name="country_name" required>
+                </div>
+                <button type="submit">Add Country</button>
+            </form>
+        </div>
+
+        <div id="league" class="tab-content section">
+            <h2>Add New League</h2>
+            <form method="POST" action="{{ url_for('insert_league_route') }}">
+                <div class="form-group">
+                    <label for="league_name">League Name:</label>
+                    <input type="text" id="league_name" name="league_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="league_country">Country:</label>
+                    <select name="league_country" id="league_country" required>
+                        <option value="">Select Country</option>
+                        {% for country in countries %}
+                            <option value="{{ country[0] }}">{{ country[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">Add League</button>
+            </form>
+        </div>
+
+        <div id="team" class="tab-content section">
+            <h2>Add New Team</h2>
+            <form method="POST" action="{{ url_for('insert_team_route') }}">
+                <div class="form-group">
+                    <label for="team_full_name">Full Name:</label>
+                    <input type="text" id="team_full_name" name="team_full_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="team_short_name">Short Name:</label>
+                    <input type="text" id="team_short_name" name="team_short_name" required maxlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="team_league">League:</label>
+                    <select name="team_league" id="team_league" required>
+                        <option value="">Select League</option>
+                        {% for league in leagues %}
+                            <option value="{{ league[0] }}">{{ league[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">Add Team</button>
+            </form>
+        </div>
+
+        <div id="player" class="tab-content section">
+            <h2>Add New Player</h2>
+            <form method="POST" action="{{ url_for('insert_player_route') }}">
+                <div class="form-group">
+                    <label for="player_name">Player Name:</label>
+                    <input type="text" id="player_name" name="player_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="height">Height (cm):</label>
+                    <input type="number" id="height" name="height" required min="140" max="220">
+                </div>
+                <div class="form-group">
+                    <label for="birthday">Birthday:</label>
+                    <input type="date" id="birthday" name="birthday" required>
+                </div>
+                <div class="form-group">
+                    <label for="birth_country">Birth Country:</label>
+                    <select name="birth_country" id="birth_country" required>
+                        <option value="">Select Country</option>
+                        {% for country in countries %}
+                            <option value="{{ country[0] }}">{{ country[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">Add Player</button>
+            </form>
+        </div>
+
+        <div id="match" class="tab-content section">
+            <h2>Add New Match</h2>
+            <form method="POST" action="{{ url_for('insert_match_route') }}">
+                <div class="form-group">
+                    <label for="season">Season:</label>
+                    <select name="season" id="season" required>
+                        {% for season in seasons %}
+                            <option value="{{ season[0] }}">{{ season[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="home_team">Home Team:</label>
+                    <select name="home_team" id="home_team" required>
+                        <option value="">Select Home Team</option>
+                        {% for team in teams %}
+                            <option value="{{ team[1] }}">{{ team[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="away_team">Away Team:</label>
+                    <select name="away_team" id="away_team" required>
+                        <option value="">Select Away Team</option>
+                        {% for team in teams %}
+                            <option value="{{ team[1] }}">{{ team[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="home_goals">Home Goals:</label>
+                    <input type="number" id="home_goals" name="home_goals" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="away_goals">Away Goals:</label>
+                    <input type="number" id="away_goals" name="away_goals" required min="0">
+                </div>
+                <button type="submit">Add Match</button>
+            </form>
+        </div>
+
+        <div id="played-for" class="tab-content section">
+            <h2>Add Player Team History</h2>
+            <form method="POST" action="{{ url_for('insert_played_for_route') }}">
+                <div class="form-group">
+                    <label for="player_name">Player Name:</label>
+                    <input type="text" id="player_name" name="player_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="team_name">Team:</label>
+                    <select name="team_name" id="team_name" required>
+                        <option value="">Select Team</option>
+                        {% for team in teams %}
+                            <option value="{{ team[1] }}">{{ team[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" required>
+                </div>
+                <button type="submit">Add Player History</button>
+            </form>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function updateCountrySelects() {
+            console.log('Updating country selects...');
+            fetch('/get_countries')
+                .then(response => response.json())
+                .then(countries => {
+                    console.log('Received countries:', countries);
+                    
+                    const countrySelects = [
+                        'league_country',
+                        'birth_country'
+                    ].map(id => document.getElementById(id));
+
+                    console.log('Found select elements:', countrySelects);
+
+                    countrySelects.forEach(select => {
+                        if (select) {
+                            const currentValue = select.value;
+                            select.innerHTML = '<option value="">Select Country</option>';
+                            countries.forEach(country => {
+                                const option = document.createElement('option');
+                                option.value = country[0];
+                                option.textContent = country[0];
+                                select.appendChild(option);
+                            });
+                            if (currentValue) {
+                                select.value = currentValue;
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error updating country lists:', error);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded'); 
+            updateCountrySelects();
+        });
+
+        function showMessage(formElement, message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            formElement.appendChild(messageDiv);
+            setTimeout(() => messageDiv.remove(), 3000);
+        }
+
+        document.querySelectorAll('.section form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const action = this.getAttribute('action');
+                
+                fetch(action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(this, data.message || 'Added successfully!', 'success');
+                        this.reset();
+                        if (action.includes('/insert/country')) {
+                            updateCountrySelects();
+                        }
+                    } else {
+                        throw new Error(data.message || 'Operation failed');
+                    }
+                })
+                .catch(error => {
+                    showMessage(this, error.message, 'error');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
