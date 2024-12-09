@@ -1,10 +1,17 @@
 import re
 import mysql.connector
 
+def get_db_connection():
+    return mysql.connector.connect(
+        user='root',
+        password='Wyh20171045!',
+        host='localhost',
+        database='soccerdb'
+    )
+
 myConnection = mysql.connector.connect(
     user='root',
-    password='...',
-    password='...',
+    password='Wyh20171045!',
     host='localhost',
     database='soccerdb'
 )
