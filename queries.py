@@ -1,6 +1,7 @@
 import re
 import mysql.connector
 import config
+import random
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -255,6 +256,261 @@ def get_seasons():
   try:
     cursor.execute(query)
     return cursor.fetchall()
+  finally:
+    cursor.close()
+    conn.close()
+
+# Insert a new Country
+# Note: If country is already in the database, the country will not be inserted
+def insert_country(country_name):
+  conn = get_db_connection()
+  cursor = conn.cursor()
+
+  # Check if country is already in the database
+  query = "SELECT CountryID FROM Country WHERE CountryName = %s;"
+  cursor.execute(query, (country_name,))
+  result = cursor.fetchone()
+  if result:
+    return
+
+  # Generate a random CountryID
+  random num = random_integer = random.randint(1, 25000)
+  query = "SELECT CountryID FROM Country WHERE CountryID = %s;"
+  cursor.execute(query, (num,))
+  result = cursor.fetchone()
+
+  while result:
+    num = random.randint(1, 25000)
+    cursor.execute(query, (num,))
+    result = cursor.fetchone()
+
+  # Insert the new country
+  try:
+    query = "INSERT INTO Country (CountryID, CountryName) VALUES (%s, %s);"
+    cursor.execute(query, (num, country_name))
+    conn.commit()
+  finally:
+    cursor.close()
+    conn.close()
+
+# Insert a new League
+# Note: If country_name does not exist in the database, it will be added into Country table
+# If league is already in the database, the league will not be inserted
+def insert_league(league_name, country_name):
+  conn = get_db_connection()
+  cursor = conn.cursor()
+
+  # Check if league is already in the database
+  query = "SELECT LeagueID FROM League WHERE LeagueName = %s;"
+  cursor.execute(query, (league_name,))
+  result = cursor.fetchone()
+  if result:
+    return
+
+  insert_country(country_name)
+  query = "SELECT CountryID FROM Country WHERE CountryName = %s;"
+  cursor.execute(query, (country_name,))
+  country_id = cursor.fetchone()[0]
+
+  # Generate a random LeagueID
+  random num = random_integer = random.randint(1, 25000)
+  query = "SELECT LeagueID FROM League WHERE LeagueID = %s;"
+  cursor.execute(query, (num,))
+  result = cursor.fetchone()
+
+  while result:
+    num = random.randint(1, 25000)
+    cursor.execute(query, (num,))
+    result = cursor.fetchone()
+  
+  # Insert the new league
+  try:
+    query = "INSERT INTO League (LeagueID, LeagueName, CountryID) VALUES (%s, %s, %s);"
+    cursor.execute(query, (num, league_name, country_id))
+    conn.commit()
+  finally:
+    cursor.close()
+    conn.close()
+
+# Insert a new Team
+# Note: If league_name does not exist in the database, the team will not be inserted
+# If team is already in the database, the team will not be inserted
+def insert_team(team_full_name, team_short_name, league_name):
+  conn = get_db_connection()
+  cursor = conn.cursor()
+
+  # Check if team is already in the database
+  query = "SELECT TeamID FROM Team WHERE FullName = %s;"
+  cursor.execute(query, (team_name,))
+  result = cursor.fetchone()
+  if result:
+    return
+
+  query = "SELECT LeagueID FROM League WHERE LeagueName = %s;"
+  cursor.execute(query, (league_name,))
+  league = cursor.fetchone()
+  # league name does not exist in DB so can't insert team
+  if not league:
+    return
+  league_id = league[0]
+
+  # Generate a random TeamID
+  random num = random_integer = random.randint(1, 25000)
+  query = "SELECT TeamID FROM Team WHERE TeamID = %s;"
+  cursor.execute(query, (num,))
+  result = cursor.fetchone()
+
+  while result:
+    num = random.randint(1, 60000)
+    cursor.execute(query, (num,))
+    result = cursor.fetchone()
+  
+  # Insert the new team
+  try:
+    query = "INSERT INTO Team (TeamID, FullName, ShortName, LeagueID) VALUES (%s, %s, %s, %s);"
+    cursor.execute(query, (num, team_full_name, team_short_name league_id))
+    conn.commit()
+  finally:
+    cursor.close()
+    conn.close()
+
+# Insert a new Player
+# Note: If birth_country does not exist in the database, it will be added into Country table
+# If player is already in the database, the player will not be inserted
+def insert_player(player_name, height, birthday, birth_country):
+  conn = get_db_connection()
+  cursor = conn.cursor()
+
+  # Check if player is already in the database
+  query = "SELECT PlayerID FROM Player WHERE PlayerName = %s AND birthday = %s;"
+  cursor.execute(query, (player_name, birthday))
+  result = cursor.fetchone()
+  if result:
+    return
+
+  insert_country(birth_country)
+  query = "SELECT CountryID FROM Country WHERE CountryName = %s;"
+  cursor.execute(query, (birth_country,))
+  country_id = cursor.fetchone()[0]
+
+  # Generate a random PlayerID
+  random num = random_integer = random.randint(1, 25000)
+  query = "SELECT PlayerID FROM Player WHERE PlayerID = %s;"
+  cursor.execute(query, (num,))
+  result = cursor.fetchone()
+
+  while result:
+    num = random.randint(1, 60000)
+    cursor.execute(query, (num,))
+    result = cursor.fetchone()
+  
+  # Insert the new player
+  try:
+    query = "INSERT INTO Player (PlayerID, PlayerName, Height, Birthday, BornIn) VALUES (%s, %s, %s, %s, %s);"
+    cursor.execute(query, (num, player_name, height, birthday, birth_country))
+    conn.commit()
+  finally:
+    cursor.close()
+    conn.close()
+
+# Insert a new Match
+# Note: If home_team or away_team does not exist in the database, the match will not be inserted
+# If match is already in the database, the match will not be inserted
+def insert_match(season, home_team, away_team, home_goals, away_goals):
+  conn = get_db_connection()
+  cursor = conn.cursor()
+
+  # Get team IDs
+  query = "SELECT TeamID FROM Team WHERE FullName = %s;"
+  cursor.execute(query, (home_team,))
+  
+  home_team = cursor.fetchone()
+  # home team does not exist in DB so can't insert match
+  if not home_team:
+    return
+  home_team = home_team[0]
+  
+  cursor.execute(query, (away_team,))
+  away_team = cursor.fetchone()
+  # away team does not exist in DB so can't insert match
+  if not away_team:
+    return
+  away_team = away_team[0]
+
+  # Check if match is already in the database
+  query = "SELECT MatchID FROM Matches WHERE Season = %s AND HomeTeamID = %s AND AwayTeamID = %s;"
+  cursor.execute(query, (season, home_team, away_team))
+  result = cursor.fetchone()
+  if result:
+    return
+
+  # Generate a random MatchID
+  random num = random_integer = random.randint(25980, 60000)
+  query = "SELECT MatchID FROM Matches WHERE MatchID = %s;"
+  cursor.execute(query, (num,))
+  result = cursor.fetchone()
+
+  while result:
+    num = random.randint(25980, 60000)
+    cursor.execute(query, (num,))
+    result = cursor.fetchone()
+  
+  # Insert the new match
+  try:
+    query = "INSERT INTO Matches (MatchID, Season, HomeTeamID, AwayTeamID, HomeGoals, AwayGoals) VALUES (%s, %s, %s, %s, %s, %s);"
+    cursor.execute(query, (num, season, home_team, away_team, home_goals, away_goals))
+    conn.commit()
+  finally:
+    cursor.close()
+    conn.close()
+
+# Insert a new PlayedFor
+# Note: If player or team does not exist in the database, the PlayedFor will not be inserted
+# If player has already played for the team or another team during the same time period, the PlayedFor will not be inserted
+# If start_date is after end_date, the PlayedFor will not be inserted
+def insert_played_for(player_name, team_name, start_date, end_date):
+  conn = get_db_connection()
+  cursor = conn.cursor()
+
+  # Get player ID and team ID 
+  query = "SELECT PlayerID FROM Player WHERE PlayerName = %s;"
+  cursor.execute(query, (player_name,))
+  player_id = cursor.fetchone()
+  # player does not exist in DB so can't insert PlayedFor
+  if not player_id:
+    return
+  player_id = player_id[0]
+
+  query = "SELECT TeamID FROM Team WHERE FullName = %s;"
+  cursor.execute(query, (team_name,))
+  team_id = cursor.fetchone()
+  # team does not exist in DB so can't insert PlayedFor
+  if not team_id:
+    return
+  team_id = team_id[0]
+
+  # Check if player has already played for the team or another team during same time period
+  query = "SELECT * FROM PlayedFor WHERE PlayerID = %s;"
+  cursor.execute(query, (player_name,))
+  result = cursor.fetchall()
+  if result:
+    for row in result():
+      # if player has already played for the team during the same time period
+      if row[1] == team_id and (row[2] <= start_date <= row[3] or row[2] <= end_date <= row[3]):
+        return
+      # if player has already played for another team during the same time period
+      elif row[1] != team_id and (row[2] <= start_date <= row[3] or row[2] <= end_date <= row[3]):
+        return
+
+  # Insert the new PlayedFor
+  try:
+    # Validate start_date < end_date
+    if start_date => end_date:
+      return
+    else:
+      query = "INSERT INTO PlayedFor (PlayerID, TeamID, StartDate, EndDate) VALUES (%s, %s, %s, %s);"
+      cursor.execute(query, (player_id, team_id, start_date, end_date))
+      conn.commit()
   finally:
     cursor.close()
     conn.close()
