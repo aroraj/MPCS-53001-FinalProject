@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from queries import get_teams, get_seasons, query7, query8
+from queries import get_teams, get_seasons, query1, query2, query3, query4, query5, query6, query7, query8
 
 app = Flask(__name__)
 
@@ -10,9 +10,23 @@ def index():
 
     return render_template('index.html')
 
-@app.route('/query1')
-def query1():
-    return render_template('query1.html')
+@app.route('/query1', methods=['GET', 'POST'])
+def query1_route():
+    try:
+        teams = get_teams()
+        seasons = get_seasons()
+        
+        if request.method == 'POST':
+            team = request.form.get('team')
+            season = request.form.get('season')
+            if team and season:
+                results = query1(team, season)
+                return render_template('query1.html', teams=teams, seasons=seasons, results=results)
+        
+        return render_template('query1.html', teams=teams, seasons=seasons)
+    except Exception as e:
+        print(f"Error in query1: {e}")
+        return f"Error: {e}", 500
 
 @app.route('/query2')
 def query2():

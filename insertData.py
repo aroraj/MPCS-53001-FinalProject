@@ -9,7 +9,7 @@ random.seed(0)
 # Connect to the database
 myConnection = mysql.connector.connect(
     user='root',
-    password='CtrlAltDel?!',
+    password='Wyh20171045!',
     host='localhost',
     database='soccerdb'
 )
@@ -29,7 +29,7 @@ with open('data/Country.csv') as csvfile:
         countryValues.append((countryID, countryName))
         countryIDs.append(countryID)
     
-myCursor.executemany('insert into Country values (%s, %s)', countryValues)
+myCursor.executemany('INSERT IGNORE INTO Country values (%s, %s)', countryValues)
 myConnection.commit()
 
 # Insert data into League table
@@ -52,7 +52,7 @@ myConnection.commit()
 # Insert data into Team table
 teamValues = []
 teamIDs = []
-with open('data/TeamNew.csv') as csvfile:
+with open('data/TeamNew.csv', encoding='utf-8') as csvfile:
     teamReader = csv.reader(csvfile, delimiter = ',' )
     next(teamReader)
     for row in teamReader:
