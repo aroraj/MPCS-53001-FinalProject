@@ -1,13 +1,18 @@
 import re
 import mysql.connector
 
-# Connect to the database
 myConnection = mysql.connector.connect(
     user='root',
+    password='...',
     password='...',
     host='localhost',
     database='soccerdb'
 )
+# Query 1: 
+
+# Query 2: 
+
+# Query 3: 
 
 # Create a cursor
 myCursor = myConnection.cursor()
@@ -110,35 +115,72 @@ def query6(teamName):
   " JOIN Team t ON t.TeamID = (SELECT TeamID FROM Team WHERE FullName = '%s' LIMIT 1) " \
   " WHERE m.HomeTeamID = t.TeamID OR m.AwayTeamID = t.TeamID;", teamName
 
-  myCursor.execute(query)
-  return myCursor.fetchall()
+  conn = get_db_connection()
+  cursor = conn.cursor()
+  
+  try:
+    cursor.execute(query)
+    return cursor.fetchall()
+  finally:
+    cursor.close()
+    conn.close()
 
 # Query 7: Players with the Same Birthday
-def query7():
-  query = "SELECT p1.PlayerID, p1.PlayerName, p1.Birthday " \
-  " FROM Player p1 " \
-  " JOIN (SELECT MONTH(Birthday) AS Month, DAY(Birthday) AS Day " \
-  " FROM Player  " \
-  " GROUP BY MONTH(Birthday), DAY(Birthday) " \
-  " HAVING COUNT(*) > 1) p2 " \
-  " ON MONTH(p1.Birthday) = p2.Month AND DAY(p1.Birthday) = p2.Day " \
-  " ORDER BY MONTH(p1.Birthday), DAY(p1.Birthday);"
-  
-  myCursor.execute(query)
-  return myCursor.fetchall()
+def query7(month=None, day=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        query = """
+        SELECT PlayerID, PlayerName, Birthday
+        FROM Player 
+        WHERE MONTH(Birthday) = %s AND DAY(Birthday) = %s
+        ORDER BY PlayerName
+        """
+        cursor.execute(query, (month, day))
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
 # Query 8: Players Taller or Shorter than a Specific Height
-def query8(height, shorter):
-  if shorter: symbol = "<"
-  else : symbol = ">"
-
-  query = "SELECT p.PlayerName, p.Height" \
-    " FROM Player p " \
-    " WHERE p.Height %s %d " \
-    " ORDER BY p.Height;" % symbol, height
-  
-  myCursor.execute(query)
-  return myCursor.fetchall()
+def query8(player_name, comparison=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        height_query = """
+        SELECT Height
+        FROM Player
+        WHERE PlayerName LIKE %s
+        LIMIT 1
+        """
+        cursor.execute(height_query, (f"%{player_name}%",))
+        result = cursor.fetchone()
+        
+        if result:
+            player_height = result[0]
+            query = """
+            SELECT PlayerID, PlayerName, Birthday, Height
+            FROM Player
+            WHERE Height {} %s
+            ORDER BY Height {}
+            """
+            
+            if comparison == 'taller':
+                operator = '>'
+                order = 'ASC'
+            else:  # shorter
+                operator = '<'
+                order = 'DESC'
+                
+            formatted_query = query.format(operator, order)
+            cursor.execute(formatted_query, (player_height,))
+            return cursor.fetchall()
+        return []
+    finally:
+        cursor.close()
+        conn.close()
 
 # Query 9: All Matches in a Specific League and Season
 def query9(teamName, season):
@@ -150,8 +192,15 @@ def query9(teamName, season):
   " JOIN League l ON ht.LeagueID = l.LeagueID " \
   " WHERE l.LeagueName = '%s' AND m.Season = %d;" % teamName, season
 
-  myCursor.execute(query)
-  return myCursor.fetchall()
+  conn = get_db_connection()
+  cursor = conn.cursor()
+  
+  try:
+    cursor.execute(query)
+    return cursor.fetchall()
+  finally:
+    cursor.close()
+    conn.close()
 
 # Query 10: Team with most wins for each country
 def query10():
@@ -165,23 +214,38 @@ def query10():
   " GROUP BY c.CountryID, t.TeamID" \
   " ORDER BY c.CountryName, Wins DESC;"
   
-  myCursor.execute(query)
-  return myCursor.fetchall()
+  conn = get_db_connection()
+  cursor = conn.cursor()
+  
+  try:
+    cursor.execute(query)
+    return cursor.fetchall()
+  finally:
+    cursor.close()
+    conn.close()
 
 # Get all teams
 def get_teams():
     query = "SELECT TeamID, FullName FROM Team ORDER BY FullName;"
-    myCursor.execute(query)
-    return myCursor.fetchall()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(query)
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
 # Get all seasons
 def get_seasons():
     query = "SELECT DISTINCT Season FROM Matches ORDER BY Season;"
-    myCursor.execute(query)
-    return myCursor.fetchall()
-
-def close_db():
-    if 'myCursor' in globals() and myCursor is not None:
-        myCursor.close()
-    if 'myConnection' in globals() and myConnection is not None:
-        myConnection.close()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(query)
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()

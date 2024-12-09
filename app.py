@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from queries import get_teams, get_seasons
+from queries import get_teams, get_seasons, query7, query8
 
 app = Flask(__name__)
 
@@ -42,13 +42,35 @@ def query6():
         print(f"Error in query6: {e}")
         return f"Error: {e}", 500
 
-@app.route('/query7')
-def query7():
-    return render_template('query7.html')
+@app.route('/query7', methods=['GET', 'POST'])
+def query7_route():
+    try:
+        if request.method == 'POST':
+            month = request.form.get('month')
+            day = request.form.get('day')
+            if month and day:
+                month = int(month)
+                day = int(day)
+            results = query7(month, day)
+            return render_template('query7.html', results=results)
+        return render_template('query7.html')
+    except Exception as e:
+        print(f"Error in query7: {e}")
+        return f"Error: {e}", 500
 
-@app.route('/query8')
-def query8():
-    return render_template('query8.html')
+@app.route('/query8', methods=['GET', 'POST'])
+def query8_route():
+    try:
+        if request.method == 'POST':
+            player_name = request.form.get('player_name')
+            comparison = request.form.get('comparison')
+            if player_name and comparison:
+                results = query8(player_name, comparison)
+                return render_template('query8.html', results=results)
+        return render_template('query8.html')
+    except Exception as e:
+        print(f"Error in query8: {e}")
+        return f"Error: {e}", 500
 
 @app.route('/query9')
 def query9():
