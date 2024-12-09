@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from queries import get_teams, get_seasons, query1, query2, query3, query4, query5, query6, query7, query8
+from queries import get_teams, get_seasons, get_leagues, query1, query2, query3, query4, query5, query6, query7, query8, query9, query10, get_countries
 
 app = Flask(__name__)
 
@@ -99,13 +99,62 @@ def query8_route():
         print(f"Error in query8: {e}")
         return f"Error: {e}", 500
 
-@app.route('/query9')
-def query9():
-    return render_template('query9.html')
+@app.route('/query9', methods=['GET', 'POST'])
+def query9_route():
+    try:
+        leagues = get_leagues()
+        seasons = get_seasons()
+        
+        if request.method == 'POST':
+            league = request.form.get('league')
+            season = request.form.get('season')
+            sort_by = request.form.get('sort_by')
+            
+            if league and season:
+                results = query9(league, season)
+                
+                if sort_by == 'home_team':
+                    results = sorted(results, key=lambda x: x[1])
+                elif sort_by == 'goals':
+                    results = sorted(results, key=lambda x: x[2] + x[4], reverse=True)
+                
+                return render_template('query9.html', 
+                                     leagues=leagues, 
+                                     seasons=seasons, 
+                                     results=results)
+        
+        return render_template('query9.html', 
+                             leagues=leagues, 
+                             seasons=seasons)
+    except Exception as e:
+        print(f"Error in query9_route: {e}")
+        return f"Error: {e}", 500
 
-@app.route('/query10')
-def query10():
-    return render_template('query10.html')
+@app.route('/query10', methods=['GET', 'POST'])
+def query10_route():
+    try:
+        countries = get_countries()
+        seasons = get_seasons()
+        
+        if request.method == 'POST':
+            selected_teams = request.form.getlist('countries')
+            season = request.form.get('season')
+            
+            if selected_teams:
+                results = query10(selected_teams, season) if season else query10(selected_teams)
+                return render_template('query10.html', 
+                                    countries=countries,
+                                    seasons=seasons,
+                                    results=results,
+                                    selected_countries=selected_teams,
+                                    selected_season=season)
+        
+        return render_template('query10.html',
+                             countries=countries,
+                             seasons=seasons)
+    except Exception as e:
+        print(f"Error in query10_route: {e}")
+        return f"Error: {e}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)

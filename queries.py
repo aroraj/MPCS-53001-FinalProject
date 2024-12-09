@@ -191,48 +191,109 @@ def query8(player_name, comparison=None):
     conn.close()
 
 # Query 9: All Matches in a Specific League and Season
-def query9(teamName, season):
-  conn = get_db_connection()
-  cursor = conn.cursor()
-  
-  try:
-    query = """SELECT m.MatchID, ht.FullName AS HomeTeam, m.HomeGoals, at.FullName AS AwayTeam, m.AwayGoals, m.Season
-    FROM Matches m
-    JOIN Team ht ON m.HomeTeamID = ht.TeamID
-    JOIN Team at ON m.AwayTeamID = at.TeamID
-    JOIN League l ON ht.LeagueID = l.LeagueID
-    WHERE l.LeagueName = '%s' AND m.Season = %s;"""
+def query9(league_name, season):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        query = """
+        SELECT 
+            m.MatchID,
+            ht.FullName AS HomeTeam,
+            m.HomeGoals,
+            at.FullName AS AwayTeam,
+            m.AwayGoals,
+            m.Season
+        FROM Matches m
+        JOIN Team ht ON m.HomeTeamID = ht.TeamID
+        JOIN Team at ON m.AwayTeamID = at.TeamID
+        JOIN League l ON ht.LeagueID = l.LeagueID
+        WHERE l.LeagueName = %s 
+        AND m.Season = %s
+        ORDER BY m.MatchID;
+        """
+        
+        cursor.execute(query, (league_name, season))
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
-    cursor.execute(query, (teamName, season))
-    return cursor.fetchall()
-  finally:
-    cursor.close()
-    conn.close()
+# Get all countries
+def get_countries():
+    query = """
+    SELECT DISTINCT c.CountryName, c.CountryID
+    FROM Country c
+    JOIN League l ON c.CountryID = l.CountryID
+    JOIN Team t ON l.LeagueID = t.LeagueID
+    ORDER BY c.CountryName;
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(query)
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
-# Query 10: Most to least wins for a country
-def query10(country):
-  conn = get_db_connection()
-  cursor = conn.cursor()
-  
-  try:
-    query = """SELECT t.FullName AS TeamName, COUNT(*) AS Wins
-    FROM Matches m
-    JOIN Team t ON m.HomeTeamID = t.TeamID OR m.AwayTeamID = t.TeamID
-    JOIN League l ON t.LeagueID = l.LeagueID
-    JOIN Country c ON l.CountryID = c.CountryID
-    WHERE c.CountryName = %s
-    AND (
-        (m.HomeGoals > m.AwayGoals AND m.HomeTeamID = t.TeamID) OR 
-        (m.AwayGoals > m.HomeGoals AND m.AwayTeamID = t.TeamID)
-    )
-    GROUP BY t.TeamID
-    ORDER BY Wins DESC;"""
-
-    cursor.execute(query, (country,))
-    return cursor.fetchall()
-  finally:
-    cursor.close()
-    conn.close()
+def query10(countries, season=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        countries_str = ','.join(countries)
+        
+        base_query = """
+        WITH TeamStats AS (
+            SELECT 
+                t.TeamID,
+                t.FullName,
+                c.CountryName,
+                SUM(CASE 
+                    WHEN m.HomeTeamID = t.TeamID THEN m.HomeGoals
+                    ELSE m.AwayGoals
+                END) as total_goals,
+                COUNT(*) as matches_played,
+                CAST(SUM(CASE 
+                    WHEN m.HomeTeamID = t.TeamID THEN m.HomeGoals
+                    ELSE m.AwayGoals
+                END) AS FLOAT) / COUNT(*) as goals_per_match
+            FROM Team t
+            JOIN League l ON t.LeagueID = l.LeagueID
+            JOIN Country c ON l.CountryID = c.CountryID
+            JOIN Matches m ON t.TeamID = m.HomeTeamID 
+                        OR t.TeamID = m.AwayTeamID
+            WHERE c.CountryID IN ({countries_str})
+            {season_filter}
+            GROUP BY t.TeamID, t.FullName, c.CountryName
+        )
+        SELECT 
+            ts.CountryName,
+            ts.FullName,
+            ts.total_goals,
+            ts.matches_played,
+            ROUND(ts.goals_per_match, 2) as goals_per_match,
+            'N/A' as top_scorer
+        FROM TeamStats ts
+        ORDER BY ts.goals_per_match DESC
+        LIMIT 5;
+        """
+        
+        if season:
+            season_filter = "AND m.Season = %s"
+            query = base_query.format(countries_str=countries_str, season_filter=season_filter)
+            cursor.execute(query, (season,))
+        else:
+            season_filter = ""
+            query = base_query.format(countries_str=countries_str, season_filter=season_filter)
+            cursor.execute(query)
+            
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
 # Get all teams
 def get_teams():
@@ -274,7 +335,7 @@ def insert_country(country_name):
     return
 
   # Generate a random CountryID
-  random num = random_integer = random.randint(1, 25000)
+  num = random.randint(1, 25000)
   query = "SELECT CountryID FROM Country WHERE CountryID = %s;"
   cursor.execute(query, (num,))
   result = cursor.fetchone()
@@ -313,7 +374,7 @@ def insert_league(league_name, country_name):
   country_id = cursor.fetchone()[0]
 
   # Generate a random LeagueID
-  random num = random_integer = random.randint(1, 25000)
+  num = random.randint(1, 25000)
   query = "SELECT LeagueID FROM League WHERE LeagueID = %s;"
   cursor.execute(query, (num,))
   result = cursor.fetchone()
@@ -355,20 +416,20 @@ def insert_team(team_full_name, team_short_name, league_name):
   league_id = league[0]
 
   # Generate a random TeamID
-  random num = random_integer = random.randint(1, 25000)
+  num = random.randint(1, 25000)
   query = "SELECT TeamID FROM Team WHERE TeamID = %s;"
   cursor.execute(query, (num,))
   result = cursor.fetchone()
 
   while result:
-    num = random.randint(1, 60000)
+    num = random.randint(1, 25000)
     cursor.execute(query, (num,))
     result = cursor.fetchone()
   
   # Insert the new team
   try:
     query = "INSERT INTO Team (TeamID, FullName, ShortName, LeagueID) VALUES (%s, %s, %s, %s);"
-    cursor.execute(query, (num, team_full_name, team_short_name league_id))
+    cursor.execute(query, (num, team_full_name, team_short_name, league_id))
     conn.commit()
   finally:
     cursor.close()
@@ -394,13 +455,13 @@ def insert_player(player_name, height, birthday, birth_country):
   country_id = cursor.fetchone()[0]
 
   # Generate a random PlayerID
-  random num = random_integer = random.randint(1, 25000)
+  num = random.randint(1, 25000)
   query = "SELECT PlayerID FROM Player WHERE PlayerID = %s;"
   cursor.execute(query, (num,))
   result = cursor.fetchone()
 
   while result:
-    num = random.randint(1, 60000)
+    num = random.randint(1, 25000)
     cursor.execute(query, (num,))
     result = cursor.fetchone()
   
@@ -445,7 +506,7 @@ def insert_match(season, home_team, away_team, home_goals, away_goals):
     return
 
   # Generate a random MatchID
-  random num = random_integer = random.randint(25980, 60000)
+  num = random.randint(25980, 60000)
   query = "SELECT MatchID FROM Matches WHERE MatchID = %s;"
   cursor.execute(query, (num,))
   result = cursor.fetchone()
@@ -505,7 +566,7 @@ def insert_played_for(player_name, team_name, start_date, end_date):
   # Insert the new PlayedFor
   try:
     # Validate start_date < end_date
-    if start_date => end_date:
+    if start_date >= end_date:
       return
     else:
       query = "INSERT INTO PlayedFor (PlayerID, TeamID, StartDate, EndDate) VALUES (%s, %s, %s, %s);"
@@ -514,3 +575,16 @@ def insert_played_for(player_name, team_name, start_date, end_date):
   finally:
     cursor.close()
     conn.close()
+
+# Get all leagues
+def get_leagues():
+    query = "SELECT DISTINCT LeagueName FROM League ORDER BY LeagueName;"
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(query)
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()

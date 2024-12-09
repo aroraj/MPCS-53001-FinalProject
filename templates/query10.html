@@ -18,23 +18,30 @@
                     <label for="season">Season (Optional):</label>
                     <select name="season" id="season">
                         <option value="">All Seasons</option>
-                        <option value="2023">2023/24</option>
-                        <option value="2022">2022/23</option>
-                        <option value="2021">2021/22</option>
+                        {% if seasons %}
+                            {% for season in seasons %}
+                            <option value="{{ season[0] }}"
+                                    {% if selected_season and season[0] == selected_season %}selected{% endif %}>
+                                {{ season[0] }}
+                            </option>
+                            {% endfor %}
+                        {% endif %}
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label for="countries">Select Countries:</label>
-                    <select name="countries" id="countries" multiple size="5">
-                        <!-- TODO: Add countries -->
+                    <select name="countries" id="countries" multiple size="5" required>
+                        {% if countries %}
+                            {% for country in countries %}
+                                <option value="{{ country[1] }}" 
+                                        {% if selected_countries and country[1]|string in selected_countries %}selected{% endif %}>
+                                    {{ country[0] }}
+                                </option>
+                            {% endfor %}
+                        {% endif %}
                     </select>
                     <small>Hold Ctrl/Cmd to select multiple countries</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="min_matches">Minimum Matches Played:</label>
-                    <input type="number" name="min_matches" id="min_matches" value="10" min="1">
                 </div>
 
                 <button type="submit" class="submit-btn">Show Results</button>
@@ -46,7 +53,7 @@
             <table class="results-table">
                 <thead>
                     <tr>
-                        <th>Country</th>
+                        <th>League</th>
                         <th>Team</th>
                         <th>Total Goals</th>
                         <th>Matches Played</th>
@@ -55,7 +62,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Results would be populated here -->
+                    {% if results %}
+                        {% for result in results %}
+                        <tr>
+                            <td>{{ result[0] }}</td> 
+                            <td>{{ result[1] }}</td>  
+                            <td>{{ result[2] }}</td>  
+                            <td>{{ result[3] }}</td> 
+                            <td>{{ result[4] }}</td> 
+                            <td>{{ result[5] }}</td> 
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6">No results found for the selected criteria.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
