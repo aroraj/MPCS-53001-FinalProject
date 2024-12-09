@@ -2,14 +2,15 @@ import re
 import csv
 import random
 import mysql.connector
+import config
 from randate import generate_date
 
 random.seed(0)
 
 # Connect to the database
 myConnection = mysql.connector.connect(
-    user='root',
-    password='Wyh20171045!',
+    user=config.user,
+    password=config.password,
     host='localhost',
     database='soccerdb'
 )
