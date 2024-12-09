@@ -25,21 +25,31 @@ myConnection = mysql.connector.connect(
 myCursor = myConnection.cursor()
 
 # Query 1: Match Results for a Specific Team
-def query1(teamName):
-  query = f"""SELECT Season, FullName AS OpponentName, Goals, OpponentGoals
-              FROM (SELECT Season, OpponentID, Goals, OpponentGoals
-                    FROM (SELECT *
-                          FROM Team AS T
-                          WHERE T.FullName = "{teamName}") AS T
-                    INNER JOIN (SELECT Season, AwayTeamID AS OpponentID, HomeGoals AS Goals, AwayGoals AS OpponentGoals, HomeTeamID AS ID
-                                FROM Matches
-                                UNION ALL
-                                SELECT Season, HomeTeamID AS OpponentID, AwayGoals AS Goals, HomeGoals AS OpponentGoals, AwayTeamID AS ID
-                                FROM Matches) AS M ON T.TeamID = M.ID) AS TM
-              INNER JOIN Team AS T ON TM.OpponentID = T.TeamID;"""
-  
-  myCursor.execute(query)
-  return myCursor.fetchall() 
+def query1(team_name, season):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        query = """
+        SELECT 
+            M.Season,
+            HT.FullName as HomeTeam,
+            M.HomeGoals,
+            M.AwayGoals,
+            AT.FullName as AwayTeam
+        FROM `Matches` M
+        JOIN `Team` HT ON M.HomeTeamID = HT.TeamID
+        JOIN `Team` AT ON M.AwayTeamID = AT.TeamID
+        WHERE (HT.FullName = %s OR AT.FullName = %s)
+        AND M.Season = %s
+        ORDER BY M.MatchID;
+        """
+        
+        cursor.execute(query, (team_name, team_name, season))
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
 
 # Query 2: Top scoring teams in a season
 def query2(limit, season):
