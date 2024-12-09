@@ -12,7 +12,7 @@ Created by: Jayti Arora, Kevin Lim, Darshana Venkatadasan, Yuehan Wang
 
     `create database SoccerDB;`
 
-2. In MySQL create tables the following:
+2. In MySQL create tables for the DB
 
     ```
     create table Country (
@@ -71,20 +71,20 @@ Created by: Jayti Arora, Kevin Lim, Darshana Venkatadasan, Yuehan Wang
     );
     ```
 
-3. Install mysql-connector and flask with the following commands in the terminal:
+3. Install mysql-connector and flask:
     
     `python3 -m pip install mysql-connector-python`
 
     `python3 -m pip install flask`
 
-4. Create a file titled `config.py` with and add your MySQL username and password:
+4. Create a file titled `config.py` and add your MySQL username and password:
     
     ```
     user = 'yourUserName'
     password = 'yourPassword'
     ```
 
-5. Insert Data into the tables with the following command in the terminal:
+5. Insert data into the tables:
 
     `python3 insertData.py`
 
