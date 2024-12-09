@@ -4,7 +4,7 @@ import mysql.connector
 # Connect to the database
 myConnection = mysql.connector.connect(
     user='root',
-    password='Wyh20171045!',
+    password='...',
     host='localhost',
     database='soccerdb'
 )
@@ -12,15 +12,92 @@ myConnection = mysql.connector.connect(
 # Create a cursor
 myCursor = myConnection.cursor()
 
-# Query 1: 
+# Query 1: Match Results for a Specific Team
+def query1(teamName):
+  query = f"""SELECT Season, FullName AS OpponentName, Goals, OpponentGoals
+              FROM (SELECT Season, OpponentID, Goals, OpponentGoals
+                    FROM (SELECT *
+                          FROM Team AS T
+                          WHERE T.FullName = "{teamName}") AS T
+                    INNER JOIN (SELECT Season, AwayTeamID AS OpponentID, HomeGoals AS Goals, AwayGoals AS OpponentGoals, HomeTeamID AS ID
+                                FROM Matches
+                                UNION ALL
+                                SELECT Season, HomeTeamID AS OpponentID, AwayGoals AS Goals, HomeGoals AS OpponentGoals, AwayTeamID AS ID
+                                FROM Matches) AS M ON T.TeamID = M.ID) AS TM
+              INNER JOIN Team AS T ON TM.OpponentID = T.TeamID;"""
+  
+  myCursor.execute(query)
+  return myCursor.fetchall() 
 
-# Query 2: 
+# Query 2: Top scoring teams in a season
+def query2(limit, season):
+  query = f"""SELECT FullName, COUNT(Goals)
+              FROM (SELECT HomeTeamID AS TeamID, HomeGoals AS Goals
+                  FROM Matches as M
+                  WHERE M.Season = {season}
+                  UNION ALL
+                  SELECT AwayTeamID AS TeamID, AwayGoals AS Goals
+                  FROM Matches AS M
+                  WHERE M.Season = {season}) AS M
+              INNER JOIN Team AS T ON T.TeamID = M.TeamID
+              GROUP BY FullName
 
-# Query 3: 
+              ORDER BY COUNT(Goals) DESC
+              LIMIT {limit};"""
+  
+  myCursor.execute(query)
+  return myCursor.fetchall()
+
+# Query 3: Players born in a given country between given years
+def query3(country, startYear, endYear):
+  query = f"""SELECT PlayerName, Birthday
+              FROM Player AS P
+              INNER JOIN (SELECT *
+                          FROM Country AS C
+                          WHERE C.CountryName = "{country}") AS C on P.BornIn = C.CountryID
+              WHERE Birthday BETWEEN "{startYear}-1-1" AND "{endYear}-12-31";"""
+  
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
 # Query 4: 
+def query4(team, year):
+  query = f"""SELECT PlayerName
+               FROM Player as P
+               INNER JOIN (SELECT PlayerID
+                           FROM PlayedFor as PF
+                           INNER JOIN (SELECT TeamID
+                                       FROM Team as T
+                                       WHERE T.FullName = "{team}") AS T ON PF.TeamID = T.TeamID
+               WHERE PF.StartDate <= "{year}-12-31" AND PF.EndDate >= "{year}-1-1") AS PFT ON P.PlayerID = PFT.PlayerID;"""
+  
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
 # Query 5: 
+def query5(league, season):
+  query = f"""SELECT 
+                FullName,
+                SUM(CASE WHEN Goals > OpponentGoals THEN 1 ELSE 0 END) AS Wins,
+                SUM(CASE WHEN Goals = OpponentGoals THEN 1 ELSE 0 END) AS Draws,
+                SUM(CASE WHEN Goals < OpponentGoals THEN 1 ELSE 0 END) AS Losses
+              FROM (SELECT HomeTeamID AS TeamID, HomeGoals AS Goals, AwayGoals AS OpponentGoals
+                    FROM Matches as M
+                    WHERE M.Season = {season}
+                    UNION ALL
+                    SELECT AwayTeamID AS TeamID, AwayGoals AS Goals, HomeGoals AS OpponentGoals
+                    FROM Matches AS M
+                    WHERE M.Season = {season}) AS M
+              INNER JOIN (SELECT TeamID, FullName
+                          FROM Team AS T
+                          INNER JOIN League as L on T.LeagueID = L.LeagueID
+                          WHERE L.LeagueName = "{league}") AS T ON T.TeamID = M.TeamID
+              GROUP BY FullName
+              
+              ORDER BY Wins DESC, Draws DESC, Losses DESC;"""
+  
+  myCursor.execute(query)
+  return myCursor.fetchall()
 
 # Query 6: Overall Wins, Losses, Draws for a Specific Team
 def query6(teamName):
