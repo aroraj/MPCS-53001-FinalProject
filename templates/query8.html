@@ -3,59 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Players by Height</title>
-    <style>
-    </style>
+    <title>Compare Player Heights</title>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back-link">← Back to Main Menu</a>
-        <h1>Players by Height</h1>
+        <h1>Compare Player Heights</h1>
         
         <div class="query-form">
             <form method="POST">
                 <div class="form-group">
-                    <label for="height">Height (cm):</label>
-                    <input type="number" name="height" id="height" required min="150" max="220">
+                    <label for="player_name">Enter Player Name:</label>
+                    <input type="text" name="player_name" id="player_name" 
+                           placeholder="Enter player name" required>
                 </div>
-                
                 <div class="form-group">
-                    <label for="comparison">Comparison:</label>
+                    <label for="comparison">Compare:</label>
                     <select name="comparison" id="comparison" required>
-                        <option value="taller">Taller than</option>
-                        <option value="shorter">Shorter than</option>
+                        <option value="taller">Taller Players</option>
+                        <option value="shorter">Shorter Players</option>
                     </select>
                 </div>
-
-                <div class="form-group">
-                    <label for="position">Position (Optional):</label>
-                    <select name="position" id="position">
-                        <option value="">All Positions</option>
-                        <option value="GK">Goalkeeper</option>
-                        <option value="DF">Defender</option>
-                        <option value="MF">Midfielder</option>
-                        <option value="FW">Forward</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="submit-btn">Find Players</button>
+                <button type="submit">Compare Heights</button>
             </form>
         </div>
 
         <div class="results-section">
             <h2>Results</h2>
-            <table class="results-table">
+            <table>
                 <thead>
                     <tr>
                         <th>Player Name</th>
-                        <th>Height</th>
-                        <th>Position</th>
-                        <th>Team</th>
-                        <th>Nationality</th>
+                        <th>Birthday</th>
+                        <th>Height (cm)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Results would be populated here -->
+                    {% if results %}
+                        {% for player in results %}
+                        <tr>
+                            <td>{{ player[1] }}</td>
+                            <td>{{ player[2].strftime('%Y-%m-%d') }}</td>
+                            <td>{{ "%.2f"|format(player[3]) }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3">No players found or invalid player name</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
