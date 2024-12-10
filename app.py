@@ -206,28 +206,38 @@ def query9_route():
 @app.route('/query10', methods=['GET', 'POST'])
 def query10_route():
     try:
-        countries = get_countries()
+        countries = get_countries()  # Returns list of tuples: [(CountryName,), ...]
         seasons = get_seasons()
         
         if request.method == 'POST':
-            selected_teams = request.form.getlist('countries')
+            selected_countries = request.form.getlist('countries')  # List of CountryName strings
             season = request.form.get('season')
             
-            if selected_teams:
-                results = query10(selected_teams, season) if season else query10(selected_teams)
-                return render_template('query10.html', 
-                                    countries=countries,
-                                    seasons=seasons,
-                                    results=results,
-                                    selected_countries=selected_teams,
-                                    selected_season=season)
+            if selected_countries:
+                try:
+                    results = query10(selected_countries, season) if season else query10(selected_countries)
+                    return render_template('query10.html', 
+                                        countries=countries,
+                                        seasons=seasons,
+                                        results=results,
+                                        selected_countries=selected_countries,
+                                        selected_season=season)
+                except ValueError as ve:
+                    print(f"ValueError in query10_route: {ve}")
+                    flash(str(ve), 'error')
+                    return redirect(url_for('query10_route'))
+                except Exception as e:
+                    print(f"Error in query10_route: {e}")
+                    flash('An error occurred while processing your request.', 'error')
+                    return redirect(url_for('index'))
         
         return render_template('query10.html',
                              countries=countries,
                              seasons=seasons)
     except Exception as e:
         print(f"Error in query10_route: {e}")
-        return f"Error: {e}", 500
+        flash('An unexpected error occurred. Please try again later.', 'error')
+        return redirect(url_for('index'))
 
 @app.route('/insert', methods=['GET'])
 def insert_page():

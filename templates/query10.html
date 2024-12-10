@@ -1,16 +1,24 @@
+<!-- query10.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top Scoring Teams by Country</title>
-    <style>
-    </style>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back-link">← Back to Main Menu</a>
         <h1>Top Scoring Teams by Country</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
         
         <div class="query-form">
             <form method="POST">
@@ -34,8 +42,8 @@
                     <select name="countries" id="countries" multiple size="5" required>
                         {% if countries %}
                             {% for country in countries %}
-                                <option value="{{ country[1] }}" 
-                                        {% if selected_countries and country[1]|string in selected_countries %}selected{% endif %}>
+                                <option value="{{ country[0] }}" 
+                                        {% if selected_countries and country[0] in selected_countries %}selected{% endif %}>
                                     {{ country[0] }}
                                 </option>
                             {% endfor %}
@@ -53,6 +61,7 @@
             <table class="results-table">
                 <thead>
                     <tr>
+                        <th>Country</th>
                         <th>League</th>
                         <th>Team</th>
                         <th>Total Goals</th>
@@ -70,12 +79,13 @@
                             <td>{{ result[2] }}</td>  
                             <td>{{ result[3] }}</td> 
                             <td>{{ result[4] }}</td> 
-                            <td>{{ result[5] }}</td> 
+                            <td>{{ "%.2f"|format(result[5]) }}</td> 
+                            <td>{{ result[6] }}</td> 
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="6">No results found for the selected criteria.</td>
+                            <td colspan="7">No results found for the selected criteria.</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -83,4 +93,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

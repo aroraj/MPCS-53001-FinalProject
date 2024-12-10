@@ -288,19 +288,29 @@ def get_countries():
             conn.close()
         raise e
 
+# Query 10: Top Scoring Teams by Country
 def query10(countries, season=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     
     try:
-        countries_str = ','.join(countries)
+        if not countries:
+            raise ValueError("No countries selected")
         
-        base_query = """
+        # Ensure all country names are strings to prevent SQL injection
+        sanitized_countries = [str(country) for country in countries]
+        
+        # Create placeholders for the IN clause
+        placeholders = ','.join(['%s'] * len(sanitized_countries))
+        
+        # Base SQL query using CountryName instead of CountryID
+        base_query = f"""
         WITH TeamStats AS (
             SELECT 
                 t.TeamID,
                 t.FullName,
                 c.CountryName,
+                l.LeagueName,
                 SUM(CASE 
                     WHEN m.HomeTeamID = t.TeamID THEN m.HomeGoals
                     ELSE m.AwayGoals
@@ -315,32 +325,39 @@ def query10(countries, season=None):
             JOIN Country c ON l.CountryID = c.CountryID
             JOIN Matches m ON t.TeamID = m.HomeTeamID 
                         OR t.TeamID = m.AwayTeamID
-            WHERE c.CountryID IN ({countries_str})
-            {season_filter}
-            GROUP BY t.TeamID, t.FullName, c.CountryName
+            WHERE c.CountryName IN ({placeholders})
+            { "AND m.Season = %s" if season else "" }
+            GROUP BY t.TeamID, t.FullName, c.CountryName, l.LeagueName
         )
         SELECT 
             ts.CountryName,
+            ts.LeagueName,
             ts.FullName,
             ts.total_goals,
             ts.matches_played,
-            ROUND(ts.goals_per_match, 2) as goals_per_match,
+            ts.goals_per_match,
             'N/A' as top_scorer
         FROM TeamStats ts
         ORDER BY ts.goals_per_match DESC
         LIMIT 5;
         """
         
+        # Prepare the parameters list
+        parameters = sanitized_countries.copy()
         if season:
-            season_filter = "AND m.Season = %s"
-            query = base_query.format(countries_str=countries_str, season_filter=season_filter)
-            cursor.execute(query, (season,))
-        else:
-            season_filter = ""
-            query = base_query.format(countries_str=countries_str, season_filter=season_filter)
-            cursor.execute(query)
-            
-        return cursor.fetchall()
+            parameters.append(season)
+        
+        # Execute the query with parameters
+        cursor.execute(base_query, parameters)
+        results = cursor.fetchall()
+        
+        return results
+    except mysql.connector.Error as err:
+        print(f"MySQL Error in query10: {err}")
+        raise err
+    except Exception as e:
+        print(f"Error in query10: {e}")
+        raise e
     finally:
         cursor.close()
         conn.close()
