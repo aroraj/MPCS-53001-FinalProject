@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Performance by Season</title>
-    <style>
-    </style>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back-link">← Back to Main Menu</a>
         <h1>Team Performance by Season</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
         
         <div class="query-form">
             <form method="POST">
@@ -19,7 +25,9 @@
                     <select name="team" id="team" required>
                         <option value="">Select a team...</option>
                         {% for team in teams %}
-                        <option value="{{ team[0] }}">{{ team[1] }}</option>
+                            <option value="{{ team[1] }}" {% if selected_team and team[1] == selected_team %}selected{% endif %}>
+                                {{ team[1] }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -27,8 +35,11 @@
                 <div class="form-group">
                     <label for="from_season">From Season:</label>
                     <select name="from_season" id="from_season" required>
+                        <option value="">Select from season...</option>
                         {% for season in seasons %}
-                        <option value="{{ season[0] }}">{{ season[0] }}/{{ season[0] + 1 }}</option>
+                            <option value="{{ season[0] }}" {% if selected_from_season and season[0] == selected_from_season %}selected{% endif %}>
+                                {{ season[0] }}/{{ season[0]|int + 1 }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -36,8 +47,11 @@
                 <div class="form-group">
                     <label for="to_season">To Season:</label>
                     <select name="to_season" id="to_season" required>
+                        <option value="">Select to season...</option>
                         {% for season in seasons %}
-                        <option value="{{ season[0] }}">{{ season[0] }}/{{ season[0] + 1 }}</option>
+                            <option value="{{ season[0] }}" {% if selected_to_season and season[0] == selected_to_season %}selected{% endif %}>
+                                {{ season[0] }}/{{ season[0]|int + 1 }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -46,26 +60,43 @@
             </form>
         </div>
 
-        <div class="results-section">
-            <h2>Season Performance</h2>
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Season</th>
-                        <th>Matches</th>
-                        <th>Wins</th>
-                        <th>Draws</th>
-                        <th>Losses</th>
-                        <th>Goals For</th>
-                        <th>Goals Against</th>
-                        <th>Win Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Results would be populated here -->
-                </tbody>
-            </table>
-        </div>
+        {% if results %}
+            <div class="results-section">
+                <h2>Performance of "{{ selected_team }}" from {{ selected_from_season }}/{{ selected_from_season|int + 1 }} to {{ selected_to_season }}/{{ selected_to_season|int + 1 }}</h2>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Season</th>
+                            <th>Wins</th>
+                            <th>Losses</th>
+                            <th>Draws</th>
+                            <th>Win Rate (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for performance in results %}
+                            <tr>
+                                <td>{{ performance[0] }}/{{ performance[0]|int + 1 }}</td>
+                                <td>{{ performance[1] }}</td>
+                                <td>{{ performance[2] }}</td>
+                                <td>{{ performance[3] }}</td>
+                                <td class="win-rate">
+                                    {% if performance[1] + performance[2] + performance[3] > 0 %}
+                                        {{ "%.2f"|format((performance[1] / (performance[1] + performance[2] + performance[3])) * 100) }}
+                                    {% else %}
+                                        0.00
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif results is not none %}
+            <div class="results-section">
+                <h2>No performance data found for the selected criteria.</h2>
+            </div>
+        {% endif %}
     </div>
 </body>
-</html> 
+</html>

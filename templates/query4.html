@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home/Away Games by Team</title>
-    <style>
-    </style>
+    <title>Players in a Team During a Specific Year</title>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back-link">← Back to Main Menu</a>
-        <h1>Home/Away Games by Team</h1>
+        <h1>Players in a Team During a Specific Year</h1>
         
         <div class="query-form">
             <form method="POST">
@@ -18,49 +16,53 @@
                     <label for="team">Select Team:</label>
                     <select name="team" id="team" required>
                         <option value="">Select a team...</option>
-                        <!-- TODO: Add teams -->
+                        {% for team in teams %}
+                            <option value="{{ team[1] }}" {% if selected_team and team[1] == selected_team %}selected{% endif %}>
+                                {{ team[1] }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="game_type">Game Type:</label>
-                    <select name="game_type" id="game_type">
-                        <option value="all">All Games</option>
-                        <option value="home">Home Games Only</option>
-                        <option value="away">Away Games Only</option>
+                    <label for="year">Year:</label>
+                    <select name="year" id="year" required>
+                        <option value="">Select year...</option>
+                        {% for season in seasons %}
+                            <option value="{{ season[0] }}" {% if selected_year and season[0] == selected_year %}selected{% endif %}>
+                                {{ season[0] }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="season">Season:</label>
-                    <select name="season" id="season">
-                        <option value="">All Seasons</option>
-                        <option value="2023">2023/24</option>
-                        <option value="2022">2022/23</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="submit-btn">Search Games</button>
+                <button type="submit" class="submit-btn">Search Players</button>
             </form>
         </div>
 
-        <div class="results-section">
-            <h2>Results</h2>
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Home/Away</th>
-                        <th>Opponent</th>
-                        <th>Score</th>
-                        <th>Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Results would be populated here -->
-                </tbody>
-            </table>
-        </div>
+        {% if results %}
+            <div class="results-section">
+                <h2>Players in "{{ selected_team }}" during {{ selected_year }}</h2>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Player Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in results %}
+                            <tr>
+                                <td>{{ player }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif results is not none %}
+            <div class="results-section">
+                <h2>No players found for the selected criteria.</h2>
+            </div>
+        {% endif %}
     </div>
 </body>
-</html> 
+</html>

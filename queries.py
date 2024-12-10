@@ -76,77 +76,130 @@ def query2(limit, season):
 
 # Query 3: Players born in a given country between given years
 def query3(country, startYear, endYear):
-  query = f"""SELECT PlayerName, Birthday
-              FROM Player AS P
-              INNER JOIN (SELECT *
-                          FROM Country AS C
-                          WHERE C.CountryName = "{country}") AS C on P.BornIn = C.CountryID
-              WHERE Birthday BETWEEN "{startYear}-1-1" AND "{endYear}-12-31";"""
-  
-  myCursor.execute(query)
-  return myCursor.fetchall()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+      SELECT P.PlayerName, P.Birthday
+      FROM Player P
+      JOIN Country C ON P.BornIn = C.CountryID
+      WHERE C.CountryName = %s
+        AND P.Birthday BETWEEN %s AND %s
+      ORDER BY P.Birthday;
+      """
+    start_date = f"{startYear}-01-01"
+    end_date = f"{endYear}-12-31"
+    cursor.execute(query, (country, start_date, end_date))
+    return cursor.fetchall()
 
-# Query 4: 
+# Query 4: Players in a Team During a Specific Year
 def query4(team, year):
-  query = f"""SELECT PlayerName
-               FROM Player as P
-               INNER JOIN (SELECT PlayerID
-                           FROM PlayedFor as PF
-                           INNER JOIN (SELECT TeamID
-                                       FROM Team as T
-                                       WHERE T.FullName = "{team}") AS T ON PF.TeamID = T.TeamID
-               WHERE PF.StartDate <= "{year}-12-31" AND PF.EndDate >= "{year}-1-1") AS PFT ON P.PlayerID = PFT.PlayerID;"""
-  
-  myCursor.execute(query)
-  return myCursor.fetchall()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+        SELECT DISTINCT P.PlayerName
+        FROM Player P
+        JOIN PlayedFor PF ON P.PlayerID = PF.PlayerID
+        JOIN Team T ON PF.TeamID = T.TeamID
+        WHERE T.FullName = %s
+          AND PF.StartDate <= %s
+          AND PF.EndDate >= %s
+        ORDER BY P.PlayerName;
+    """
+    # Define the date range for the specified year
+    start_date = f"{year}-01-01"
+    end_date = f"{year}-12-31"
+    
+    cursor.execute(query, (team, end_date, start_date))
+    results = cursor.fetchall()
+    
+    # Flatten the list of tuples to a list of strings
+    players = [player[0] for player in results]
+    
+    cursor.close()
+    conn.close()
+    return players
 
 # Query 5: 
 def query5(league, season):
-  query = f"""SELECT 
-                FullName,
-                SUM(CASE WHEN Goals > OpponentGoals THEN 1 ELSE 0 END) AS Wins,
-                SUM(CASE WHEN Goals = OpponentGoals THEN 1 ELSE 0 END) AS Draws,
-                SUM(CASE WHEN Goals < OpponentGoals THEN 1 ELSE 0 END) AS Losses
-              FROM (SELECT HomeTeamID AS TeamID, HomeGoals AS Goals, AwayGoals AS OpponentGoals
-                    FROM Matches as M
-                    WHERE M.Season = {season}
-                    UNION ALL
-                    SELECT AwayTeamID AS TeamID, AwayGoals AS Goals, HomeGoals AS OpponentGoals
-                    FROM Matches AS M
-                    WHERE M.Season = {season}) AS M
-              INNER JOIN (SELECT TeamID, FullName
-                          FROM Team AS T
-                          INNER JOIN League as L on T.LeagueID = L.LeagueID
-                          WHERE L.LeagueName = "{league}") AS T ON T.TeamID = M.TeamID
-              GROUP BY FullName
-              
-              ORDER BY Wins DESC, Draws DESC, Losses DESC;"""
-  
-  myCursor.execute(query)
-  return myCursor.fetchall()
-
-# Query 6: Wins, Losses, Draws for a Specific Team Over The Years
-def query6(teamName):
-  conn = get_db_connection()
-  cursor = conn.cursor()
-  
-  try:
-    query = """SELECT m.Season,
-    SUM(CASE WHEN (m.HomeTeamID = t.TeamID AND m.HomeGoals > m.AwayGoals) OR (m.AwayTeamID = t.TeamID AND m.AwayGoals > m.HomeGoals)
-    THEN 1 ELSE 0 END) AS Wins,
-    SUM(CASE WHEN (m.HomeTeamID = t.TeamID AND m.HomeGoals < m.AwayGoals) OR (m.AwayTeamID = t.TeamID AND m.AwayGoals < m.HomeGoals) THEN 1 ELSE 0 END) AS Losses,
-    SUM(CASE WHEN m.HomeGoals = m.AwayGoals THEN 1 ELSE 0 END) AS Draws
-    FROM Matches m
-    JOIN Team t ON t.TeamID = (SELECT TeamID FROM Team WHERE FullName = '%s' LIMIT 1)
-    WHERE (m.HomeTeamID = t.TeamID OR m.AwayTeamID = t.TeamID)
-    GROUP BY m.Season
-    ORDER BY m.Season;"""
-
-    cursor.execute(query, (teamName,))
-    return cursor.fetchall()
-  finally:
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+        SELECT 
+            T.FullName,
+            SUM(CASE WHEN M.Goals > M.OpponentGoals THEN 1 ELSE 0 END) AS Wins,
+            SUM(CASE WHEN M.Goals = M.OpponentGoals THEN 1 ELSE 0 END) AS Draws,
+            SUM(CASE WHEN M.Goals < M.OpponentGoals THEN 1 ELSE 0 END) AS Losses
+        FROM (
+            SELECT 
+                HomeTeamID AS TeamID, 
+                HomeGoals AS Goals, 
+                AwayGoals AS OpponentGoals
+            FROM Matches
+            WHERE Season = %s
+            UNION ALL
+            SELECT 
+                AwayTeamID AS TeamID, 
+                AwayGoals AS Goals, 
+                HomeGoals AS OpponentGoals
+            FROM Matches
+            WHERE Season = %s
+        ) AS M
+        INNER JOIN (
+            SELECT 
+                T.TeamID, 
+                T.FullName
+            FROM Team T
+            INNER JOIN League L ON T.LeagueID = L.LeagueID
+            WHERE L.LeagueName = %s
+        ) AS T ON T.TeamID = M.TeamID
+        GROUP BY T.FullName
+        ORDER BY Wins DESC, Draws DESC, Losses DESC;
+    """
+    # Execute the query with parameters
+    cursor.execute(query, (season, season, league))
+    results = cursor.fetchall()
     cursor.close()
     conn.close()
+    return results
+
+# Query 6: Wins, Losses, Draws for a Specific Team Over The Years
+def query6(teamName, from_season, to_season):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT 
+            m.Season,
+            SUM(CASE 
+                WHEN (m.HomeTeamID = t.TeamID AND m.HomeGoals > m.AwayGoals) 
+                     OR (m.AwayTeamID = t.TeamID AND m.AwayGoals > m.HomeGoals) 
+                THEN 1 
+                ELSE 0 
+            END) AS Wins,
+            SUM(CASE 
+                WHEN (m.HomeTeamID = t.TeamID AND m.HomeGoals < m.AwayGoals) 
+                     OR (m.AwayTeamID = t.TeamID AND m.AwayGoals < m.HomeGoals) 
+                THEN 1 
+                ELSE 0 
+            END) AS Losses,
+            SUM(CASE 
+                WHEN m.HomeGoals = m.AwayGoals 
+                THEN 1 
+                ELSE 0 
+            END) AS Draws
+        FROM Matches m
+        JOIN Team t ON t.TeamID = (SELECT TeamID FROM Team WHERE FullName = %s LIMIT 1)
+        WHERE (m.HomeTeamID = t.TeamID OR m.AwayTeamID = t.TeamID)
+          AND m.Season BETWEEN %s AND %s
+        GROUP BY m.Season
+        ORDER BY m.Season;
+    """
+    
+    cursor.execute(query, (teamName, from_season, to_season))
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return results
 
 # Query 7: Players with the Same Birthday
 def query7(month=None, day=None):

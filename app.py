@@ -47,13 +47,55 @@ def query2_route():
         print(f"Error in query2: {e}")
         return f"Error: {e}", 500
 
-@app.route('/query3')
-def query3():
-    return render_template('query3.html')
+@app.route('/query3', methods=['GET', 'POST'])
+def query3_route():
+    try:
+        countries = get_countries()
+        
+        if request.method == 'POST':
+            country = request.form.get('country')
+            start_year = request.form.get('start_year')
+            end_year = request.form.get('end_year')
+            if country and start_year and end_year:
+                results = query3(country, start_year, end_year)
+                return render_template(
+                    'query3.html', 
+                    countries=countries, 
+                    results=results, 
+                    selected_country=country, 
+                    start_year=start_year, 
+                    end_year=end_year
+                )
+        
+        return render_template('query3.html', countries=countries)
+    except Exception as e:
+        print(f"Error in query3: {e}")
+        return f"Error: {e}", 500
 
-@app.route('/query4')
-def query4():
-    return render_template('query4.html')
+@app.route('/query4', methods=['GET', 'POST'])
+def query4_route():
+    try:
+        teams = get_teams()
+        seasons = get_seasons()
+        
+        if request.method == 'POST':
+            team = request.form.get('team')
+            year = request.form.get('year')
+            if team and year:
+                results = query4(team, year)
+                return render_template(
+                    'query4.html',
+                    teams=teams,
+                    seasons=seasons,
+                    results=results,
+                    selected_team=team,
+                    selected_year=year
+                )
+        
+        return render_template('query4.html', teams=teams, seasons=seasons)
+    except Exception as e:
+        print(f"Error in query4: {e}")
+        return f"Error: {e}", 500
 
 @app.route('/query5', methods=['GET', 'POST'])
 def query5_route():
@@ -77,9 +119,24 @@ def query5_route():
 def query6_route():
     try:
         teams = get_teams()
-        print(f"Found {len(teams)} teams")
         seasons = get_seasons()
-        print(f"Found {len(seasons)} seasons")
+        
+        if request.method == 'POST':
+            team = request.form.get('team')
+            from_season = request.form.get('from_season')
+            to_season = request.form.get('to_season')
+            if team and from_season and to_season:
+                results = query6(team, from_season, to_season)
+                return render_template(
+                    'query6.html',
+                    teams=teams,
+                    seasons=seasons,
+                    results=results,
+                    selected_team=team,
+                    selected_from_season=from_season,
+                    selected_to_season=to_season
+                )
+        
         return render_template('query6.html', teams=teams, seasons=seasons)
     except Exception as e:
         print(f"Error in query6: {e}")
