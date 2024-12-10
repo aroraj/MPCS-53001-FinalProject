@@ -1,4 +1,4 @@
-# MPCS-53001-FinalProject: European Soccer Analysis
+# MPCS-53001-FinalProject: European Soccer Database Trends
 Created by: Jayti Arora, Kevin Lim, Darshana Venkatadasan, Yuehan Wang
 
 ## ER Diagram
